@@ -34,8 +34,8 @@ export default {
   data () {
     return {
       form: {
-        username: '',
-        password: ''
+        username: 'admin',
+        password: '123456'
       },
       loginFormRules: {
         username: [
@@ -52,10 +52,18 @@ export default {
   methods: {
     login () {
       // eslint-disable-next-line no-unused-expressions
-      this.$refs.loginFormRef.validate(async valid => {
+      this.$refs.loginFormRef.validate(valid => {
         if (!valid) return
-        const { data: res } = await this.$axios.post('/login', this.form)
-        if (res.data !== null) await this.$router.push('/layout')
+        this.$axios.post('/login', this.form)
+          .then(res => {
+            if (res.data.meta.status !== 200) {
+              this.$message.error(res.data.meta.msg)
+            } else {
+              window.sessionStorage.setItem('token', res.data.token)
+              this.$router.push('/layout')
+              this.$message.success(res.data.meta.msg)
+            }
+          })
       })
     }
   }
